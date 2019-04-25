@@ -1,0 +1,18 @@
+{
+  "logger": {
+    "title": "Remote Sync"
+  },
+  "uploadOnSave": false,
+  "useAtomicWrites": false,
+  "deleteLocal": false,
+  "hostname": "oxford.cs.arizona.edu",
+  "port": "22",
+  "target": "tomcat7/tomcat7/webapps",
+  "ignore": [
+    ".remote-sync.json",
+    ".git/**"
+  ],
+  "username": "appietro516",
+  "watch": [],
+  "transport": "scp"
+}

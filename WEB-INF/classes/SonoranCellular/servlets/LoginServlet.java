@@ -13,6 +13,7 @@ public class LoginServlet extends HttpServlet
     public LoginServlet()
     {
         super();
+        System.out.println("HI\n\n\n\n\n\n\n\n\n\n\n\n\n");
     }
 
     OracleConnect oc = new OracleConnect();
@@ -88,6 +89,7 @@ public class LoginServlet extends HttpServlet
 
     public void drawLoginSuccess(HttpServletRequest req, PrintWriter out)
     {
+        System.out.println("HI2\n\n\n\n\n\n\n\n\n\n\n\n\n");
         drawHeader(req,out);
         drawActiveOptions(req,out);
         drawFooter(req,out);
@@ -104,7 +106,10 @@ public class LoginServlet extends HttpServlet
     {
         res.setContentType("text/html");
         PrintWriter out = res.getWriter();
-
+        //System.out.println("Res " + res);
+        System.out.println("Req " + req.getQueryString());
+        System.out.println("\n\n\n\n\n\n\n\n\n\n\n\n\n");
+        //add if statement here.
         //if login success, call the following function
         drawLoginSuccess(req,out);
 
@@ -112,5 +117,3 @@ public class LoginServlet extends HttpServlet
         //drawLoginFail(req,out);
     }
 }
-
-
