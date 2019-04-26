@@ -127,7 +127,7 @@ public class LoginServlet extends HttpServlet
     			ResultSet.TYPE_SCROLL_INSENSITIVE,
     			ResultSet.CONCUR_READ_ONLY
 			);
-		    rs0 = s.executeQuery(String.format("SELECT * FROM Users WHERE user=%s and email=%s", user, email));
+		    rs0 = s.executeQuery(String.format("SELECT * FROM Users WHERE UserName = '%s' AND Email = '%s'", user, email));
         } catch(Exception e) {e.printStackTrace();}
 
         if (countResults(rs0) == 1){
