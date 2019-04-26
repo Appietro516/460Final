@@ -10,10 +10,12 @@ import java.sql.*;
 
 public class LoginServlet extends HttpServlet
 {
+    private Connection m_conn;
+
     public LoginServlet()
     {
         super();
-        System.out.println("HI\n\n\n\n\n\n\n\n\n\n\n\n\n");
+        m_conn = connectDB();
     }
 
     OracleConnect oc = new OracleConnect();
@@ -89,7 +91,6 @@ public class LoginServlet extends HttpServlet
 
     public void drawLoginSuccess(HttpServletRequest req, PrintWriter out)
     {
-        System.out.println("HI2\n\n\n\n\n\n\n\n\n\n\n\n\n");
         drawHeader(req,out);
         drawActiveOptions(req,out);
         drawFooter(req,out);
@@ -106,14 +107,54 @@ public class LoginServlet extends HttpServlet
     {
         res.setContentType("text/html");
         PrintWriter out = res.getWriter();
-        //System.out.println("Res " + res);
-        System.out.println("Req " + req.getQueryString());
-        System.out.println("\n\n\n\n\n\n\n\n\n\n\n\n\n");
-        //add if statement here.
-        //if login success, call the following function
-        drawLoginSuccess(req,out);
 
-        //if fail, call the following function
-        //drawLoginFail(req,out);
+        //parse login
+        String loginInfo = req.getQueryString();
+        String[] loginParams = loginInfo.split("&");
+        String email, user;
+        try{
+            email = loginParams[0].split("=")[1];
+            user = loginParams[1].split("=")[1];
+        } catch(ArrayIndexOutOfBoundsException e){
+            email = "";
+            user = "";
+        }
+
+        //query db
+        ResultSet rs0 = null;
+        try{
+			Statement s = m_conn.createStatement(
+    			ResultSet.TYPE_SCROLL_INSENSITIVE,
+    			ResultSet.CONCUR_READ_ONLY
+			);
+		    rs0 = s.executeQuery(String.format("SELECT * FROM Users WHERE user=%s and email=%s", user, email));
+        } catch(Exception e) {e.printStackTrace();}
+
+        if (countResults(rs0) == 1){
+            drawLoginSuccess(req,out);
+        } else {drawLoginFail(req,out);}
+
     }
+
+    private static int countResults(ResultSet rs){
+		try{
+			int count = 0;
+			while (rs.next()) {count++;}
+			rs.beforeFirst(); //rewind result set
+			return count;
+		} catch(Exception e) {e.printStackTrace();}
+		return -1;
+	}
+
+    //connect to database
+	public static Connection connectDB(){
+		try{
+			Class.forName("oracle.jdbc.OracleDriver");  // Registers drivers
+	        Connection m_conn = DriverManager.getConnection(OracleConnect.connect_string,OracleConnect.user_name,OracleConnect.password); //get a connection
+	        if (m_conn == null) throw new Exception("getConnection failed");
+			m_conn.setAutoCommit(true);//optional, but it sets auto commit to true
+            return m_conn;
+		} catch(Exception e){e.printStackTrace();}
+        return null;
+	}
 }
