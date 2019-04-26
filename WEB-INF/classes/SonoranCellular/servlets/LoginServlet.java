@@ -74,10 +74,10 @@ public class LoginServlet extends HttpServlet
         out.println("</form>");
     }
 
-    private void drawFailOptions(HttpServletRequest req, PrintWriter out)
+    private void drawFailOptions(HttpServletRequest req, PrintWriter out, String err)
     {
         out.println("<font size=5 face=\"Arial,Helvetica\">");
-        out.println("<b>Error: e-mail does not exist.</b></br>");
+        out.println(String.format("<b>%s</b></br>", err));
 
         out.println("<hr");
         out.println("<br><br>");
@@ -96,10 +96,10 @@ public class LoginServlet extends HttpServlet
         drawFooter(req,out);
     }
 
-    public void drawLoginFail(HttpServletRequest req, PrintWriter out)
+    public void drawLoginFail(HttpServletRequest req, PrintWriter out, String err)
     {
         drawHeader(req,out);
-        drawFailOptions(req,out);
+        drawFailOptions(req,out,err);
         drawFooter(req,out);
     }
 
@@ -127,12 +127,20 @@ public class LoginServlet extends HttpServlet
     			ResultSet.TYPE_SCROLL_INSENSITIVE,
     			ResultSet.CONCUR_READ_ONLY
 			);
-		    rs0 = s.executeQuery(String.format("SELECT * FROM Users WHERE UserName = '%s' AND Email = '%s'", user, email));
+		    rs0 = s.executeQuery(String.format("SELECT * FROM Users WHERE Email = '%s'",email));
         } catch(Exception e) {e.printStackTrace();}
 
-        if (countResults(rs0) == 1){
-            drawLoginSuccess(req,out);
-        } else {drawLoginFail(req,out);}
+        try{
+            int numResults = countResults(rs0);
+            rs0.next();
+            System.out.println("!!!!!!!!!!!!!!!!!!!!user:" + (numResults));
+            System.out.println("!!!!!!!!!!!!!!!!!!!!user:" + rs0.getString(3));
+            if (numResults >=1 && rs0.getString(3).equals(user)){
+                drawLoginSuccess(req,out);
+            } else if(countResults(rs0) == 1){
+                drawLoginFail(req,out, "Error: Enter the correct user name.");
+            } else {drawLoginFail(req,out, "Error: e-mail does not exist.");}
+        } catch(SQLException e) {e.printStackTrace();}
 
     }
 
@@ -146,7 +154,7 @@ public class LoginServlet extends HttpServlet
 		return -1;
 	}
 
-    //connect to database
+    //connect to databases
 	public static Connection connectDB(){
 		try{
 			Class.forName("oracle.jdbc.OracleDriver");  // Registers drivers
